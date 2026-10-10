@@ -1,0 +1,54 @@
+name: Build TIPA
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Relaxin TIPA
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          if [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install dependencies via Homebrew
+        run: |
+          brew install ldid zstd gnu-tar ripgrep dpkg
+
+      - name: Install trustcache
+        run: |
+          ARCH="$(uname -m)"
+          if [ "$ARCH" = "arm64" ]; then
+            curl -Lo /tmp/trustcache https://github.com/CRKatri/trustcache/releases/download/v2.0/trustcache_macos_arm64
+          else
+            curl -Lo /tmp/trustcache https://github.com/CRKatri/trustcache/releases/download/v2.0/trustcache_macos_x86_64
+          fi
+          chmod +x /tmp/trustcache
+          sudo cp /tmp/trustcache /opt/homebrew/bin/trustcache 2>/dev/null || sudo cp /tmp/trustcache /usr/local/bin/trustcache
+          sudo xattr -d com.apple.quarantine /opt/homebrew/bin/trustcache 2>/dev/null || true
+          which trustcache
+
+      - name: Build TIPA
+        run: |
+          make tipa
+
+      - name: Upload TIPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Relaxin-TIPA
+          path: build/Artifacts/*.tipa
+          if-no-files-found: error

@@ -61,7 +61,6 @@ for entitlement in \
     "com.apple.private.persona-mgmt" \
     "com.apple.private.security.storage-exempt.heritable" \
     "com.apple.private.security.storage.AppBundles" \
-    "com.apple.private.security.no-sandbox" \
     "com.apple.springboard.CFUserNotification" \
     "com.apple.springboard.launchapplications" \
     "com.apple.security.network.client" \
