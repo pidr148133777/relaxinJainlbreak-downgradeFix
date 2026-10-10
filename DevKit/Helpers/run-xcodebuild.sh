@@ -51,6 +51,8 @@ normalize_log() {
         next if m{Metal\.xctoolchain/usr/lib/swift/maccatalyst};
         next if m{CoreData: error: Failed to create NSXPCConnection};
         next if m{connection to service named com\.apple\.linkd\.autoShortcut};
+        next if m{Could not extract value};
+        next if m{None of the input catalogs contained a matching};
         print;
     ' "$RAW_LOG" >"$LOG"
 }
